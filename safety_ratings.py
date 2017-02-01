@@ -24,13 +24,18 @@ class API(nhtsa.API):
 if __name__ == '__main__':
 	api = API()
 	vehicles = []
+	missing = []
 	for i, res, total_i in nhtsa.enum_with_count(api.get_all_model_years()):
 		year = res['ModelYear']
 		for j, res, total_j in nhtsa.enum_with_count(api.get_all_makes_for_year(year)):
 			make = res['Make'].replace(' ', '')
 			for k, res, total_k in nhtsa.enum_with_count(api.get_all_models_for_make_and_year(year, make)):
 				model = res['Model'].replace(' ', '')
-				for l, res, total_l in nhtsa.enum_with_count(api.get_by_year_make_model(year, make, model)):
+				vehicleIDs = api.get_by_year_make_model(year, make, model)
+				if not vehicleIDs:
+					print('Missing {0} {1} {2}'.format(year, make, model))
+					missing.append((year, make, model))
+				for l, res, total_l in nhtsa.enum_with_count(vehicleIDs):
 					vehicleID = res['VehicleId']
 					print(year, make, model, vehicleID,
 						'Year: {0}/{1} Make: {2}/{3} Model: {4}/{5}'.format(
@@ -39,3 +44,5 @@ if __name__ == '__main__':
 
 	with open('safety_ratings.json', 'w') as f:
 		json.dump(vehicles, f)
+	with open('missing.json', 'w') as f:
+		json.dump(missing, f)

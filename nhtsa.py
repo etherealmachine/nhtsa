@@ -15,13 +15,13 @@ class APIError(IOError):
 		self.url = url
 		self.resp = resp
 		super(IOError, self).__init__(
-			'{0}\nStatus Code {1}\nResponse\n{2}'.format(
-			url, resp.status_code, resp.text.encode('utf-8')))
+			'{:}\nStatus Code {:}\nHeaders\n{:}\nResponse\n{:}'.format(
+			url, resp.status_code, resp.headers, resp.text.encode('utf-8')))
 
 
 def url_fmt(arg):
 	if not isinstance(arg, str):
-		arg = str(arg)
+		arg = str(arg).strip()
 	return urllib.quote(arg, '')
 
 
